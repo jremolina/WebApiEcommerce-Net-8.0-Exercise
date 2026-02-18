@@ -1,0 +1,7 @@
+# Ignorar bin y obj solo del proyecto
+/bin/
+/obj/
+
+Ignorar configuraciones locales de VSCode y vs
+/.vscode/
+/.vs/
