@@ -1,4 +1,3 @@
-using System;
 using ApiEcommerce.Models;
 
 namespace ApiEcommerce.Repository.IRepository;
@@ -6,7 +5,7 @@ namespace ApiEcommerce.Repository.IRepository;
 public interface ICategoryRepository
 {
     ICollection<Category> GetCategories();
-    Category GetCategory(int id);
+    Category? GetCategory(int id);
     bool CategoryExists(int id);
     bool CategoryExists(string name);
     bool CreateCategory(Category category);

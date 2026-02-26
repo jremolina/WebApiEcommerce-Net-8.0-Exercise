@@ -1,5 +1,3 @@
-using System;
-using System.Net.Http.Headers;
 using ApiEcommerce.Data;
 using ApiEcommerce.Models;
 using ApiEcommerce.Repository.IRepository;
@@ -44,14 +42,14 @@ public class CategoryRepository : ICategoryRepository
         return _db.Categories.OrderBy(c => c.Name).ToList();
     }
 
-    public Category GetCategory(int id)
+    public Category? GetCategory(int id)
     {
-        return _db.Categories.FirstOrDefault(c => c.Id == id) ?? throw new Exception($"La Categoria con el id {id} no existe");
+        return _db.Categories.FirstOrDefault(c => c.Id == id);
     }
 
     public bool Save()
     {
-        return _db.SaveChanges() > 0 ? true : false;
+        return _db.SaveChanges() >= 0 ? true : false;
     }
 
     public bool UpdateCategory(Category category)
