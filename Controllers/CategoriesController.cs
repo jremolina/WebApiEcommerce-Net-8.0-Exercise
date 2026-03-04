@@ -58,18 +58,18 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateCategory([FromBody] CreateCategoryDto createategoryDto)
+        public IActionResult CreateCategory([FromBody] CreateCategoryDto createcategoryDto)
         {
-            if (createategoryDto == null)
+            if (createcategoryDto == null)
             {
                 return BadRequest(ModelState);
             }
-            if (_categoryRepository.CategoryExists(createategoryDto.Name))
+            if (_categoryRepository.CategoryExists(createcategoryDto.Name))
             {
-                ModelState.AddModelError("Custom Error", $"La categoria  {createategoryDto.Name}  ya existe");
+                ModelState.AddModelError("Custom Error", $"La categoria  {createcategoryDto.Name}  ya existe");
                 return BadRequest(ModelState);
             }
-            var category = _mapper.Map<Category>(createategoryDto);
+            var category = _mapper.Map<Category>(createcategoryDto);
             if (!_categoryRepository.CreateCategory(category))
             {
                 ModelState.AddModelError("Custom Error", $"No se pudo crear la categoria {category.Name} ");
