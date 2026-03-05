@@ -10,7 +10,8 @@ public class UpdateProductDto
     public string ImgUrl { get; set; } = string.Empty;
     public string SKU { get; set; } = string.Empty;// Prdo-001-blk. ejemplo de codigo inventario
     public int Stock { get; set; }
-    public DateTime? UpdateDate { get; set; } = null;
+    //public DateTime? UpdateDate { get; set; } = null;
+    public DateTime? UpdateDate { get; set; } = DateTime.Now;
     //realacion con category 
     public int CategoryId { get; set; }
 

@@ -16,4 +16,5 @@ public class ProductDto
     public DateTime? UpdateDate { get; set; } = null;
     //realacion con category 
     public int CategoryId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
 }

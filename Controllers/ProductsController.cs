@@ -14,7 +14,7 @@ namespace ApiEcommerce.Controllers
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        public ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository, Mapper mapper)
+        public ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
@@ -80,7 +80,13 @@ namespace ApiEcommerce.Controllers
                 ModelState.AddModelError("Custom Error", $"No se pudo crear el producto {product.Name} ");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetProduct", new { id = product.ProductId }, product);
+            var createProduct = _productRepository.GetProduct(product.ProductId);
+            var productDto = _mapper.Map<ProductDto>(createProduct);
+            return CreatedAtRoute("GetProduct", new { id = product.ProductId }, productDto);
         }
+
+
+
+        
     }
 }
