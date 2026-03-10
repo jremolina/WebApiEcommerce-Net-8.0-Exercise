@@ -41,7 +41,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetCategory(int id)
+        public IActionResult GetProductbyId(int id)
         {
             var product = _productRepository.GetProduct(id);
             if (product == null)
@@ -86,7 +86,64 @@ namespace ApiEcommerce.Controllers
         }
 
 
+        [HttpGet("SearchProductByCategory/{categoryid:int}", Name = "GetProductsForCategory")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetProductsForCategory(int categoryid)
+        {
+            var products = _productRepository.GetProductsForCategory(categoryid);
+            if (products.Count == 0)
+            {
+                return NotFound($"Los productos con el Category ID :  {categoryid} no existen");
+            }
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+            return Ok(productsDto);
+        }
 
-        
+
+        [HttpGet("SearchProductByDescription/{searchTerm}", Name = "SearchProductsByName")]// cuando el paraametro es string, se omite especificar el tipo de dato
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult SearchProductsByName(string searchTerm)
+        {
+            var products = _productRepository.SearchProductsByName(searchTerm);
+            if (products.Count == 0)
+            {
+                return NotFound($"Los productos con el nombre :  {searchTerm} no existen");
+            }
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+            return Ok(productsDto);
+        }
+
+        [HttpGet("BuyProduct/{name}/{quantity: int}", Name = "BuyProduct")]// cuando el paraametro es string, se omite especificar el tipo de dato
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult BuyProduct(string name, int quantity)
+        {
+            if (string.IsNullOrEmpty(name) || quantity <= 0)
+            {
+                return BadRequest("nombre o cantidad no validos");
+            }
+            var foundProduct = _productRepository.ProductExist(name);
+            if (!foundProduct)
+            {
+                return NotFound($"El nomnre {name} no existe");
+            }
+            if (!_productRepository.BuyProduct(name, quantity))
+            {
+                ModelState.AddModelError("CustomError", $"no se pudo comprar el prodcuto {name} o la cantidad es mayor al stock disponible");
+                return BadRequest(ModelState);
+            }
+            return Ok($" Se realizo la cmpra de {quantity} '{name}' ");
+
+        }
+
+
     }
 }
