@@ -119,7 +119,7 @@ namespace ApiEcommerce.Controllers
             return Ok(productsDto);
         }
 
-        [HttpGet("BuyProduct/{name}/{quantity: int}", Name = "BuyProduct")]// cuando el paraametro es string, se omite especificar el tipo de dato
+        [HttpPatch("BuyProduct/{name}/{quantity:int}", Name = "BuyProduct")]// cuando el paraametro es string, se omite especificar el tipo de dato
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -133,15 +133,75 @@ namespace ApiEcommerce.Controllers
             var foundProduct = _productRepository.ProductExist(name);
             if (!foundProduct)
             {
-                return NotFound($"El nomnre {name} no existe");
+                return NotFound($"El producto con el nomnre {name} no existe");
             }
             if (!_productRepository.BuyProduct(name, quantity))
             {
-                ModelState.AddModelError("CustomError", $"no se pudo comprar el prodcuto {name} o la cantidad es mayor al stock disponible");
+                ModelState.AddModelError("CustomError", $"no se pudo comprar el producto {name} o la cantidad es mayor al stock disponible");
                 return BadRequest(ModelState);
             }
-            return Ok($" Se realizo la cmpra de {quantity} '{name}' ");
+            var units = quantity == 1 ? "Unidad" : "Unidades";
+            return Ok($" Se realizo la compra de {quantity} {units} del producto '{name}' ");
 
+        }
+        [HttpPut("{productId:int}", Name = "UpdateProduct")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult UpdateProduct(int productId, [FromBody] UpdateProductDto updateProductDto)
+        {
+            if (updateProductDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_productRepository.ProductExist(productId))
+            {
+                ModelState.AddModelError("Custom Error", $" El producto  {updateProductDto.Name}  no existe");
+                return BadRequest(ModelState);
+            }
+            if (!_categoryRepository.CategoryExists(updateProductDto.CategoryId))
+            {
+                ModelState.AddModelError("Custom Error", $" La categoria  con Id {updateProductDto.CategoryId}  no existe");
+                return BadRequest(ModelState);
+            }
+            var product = _mapper.Map<Product>(updateProductDto);
+            product.ProductId = productId;
+
+            if (!_productRepository.UpdateProduct(product))
+            {
+                ModelState.AddModelError("Custom Error", $"algo salio mal al actualizar el producto {product.Name} ");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
+
+        [HttpDelete("{id:int}", Name = "DeleteProduct")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult DeleteProduct(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            var product = _productRepository.GetProduct(id);
+            if (product == null)
+            {
+                ModelState.AddModelError("Custom Error", $" El producto  {id}  no existe");
+                return BadRequest(ModelState);
+            }
+            if (!_productRepository.DeleteProduct(product))
+            {
+                ModelState.AddModelError("Custom Error", $"algo salio mal al actualizar el producto {product.Name} ");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
         }
 
 
