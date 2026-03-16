@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Constants\" />
     <Folder Include="Data\" />
     <Folder Include="Mapping\" />
     <Folder Include="Repository\IRepository\" />
