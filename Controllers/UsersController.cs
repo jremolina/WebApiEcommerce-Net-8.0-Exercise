@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
@@ -47,6 +48,53 @@ namespace ApiEcommerce.Controllers
             }
             var userDto = _mapper.Map<UserDto>(user);
             return Ok(userDto);
+        }
+
+        [HttpPost(Name = "RegisterUser")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RegisterUser([FromBody] CreateUserDto createUserDto)
+        {
+            if (createUserDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (string.IsNullOrWhiteSpace(createUserDto.Username))
+            {
+                return BadRequest("username es requerido");
+            }
+            if (!_userRepository.IsUniqueUser(createUserDto.Username))
+            {
+                return BadRequest("el usuario ya existe");
+            }
+            var result = await _userRepository.Register(createUserDto);
+            if (result == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al registrar  usuario");
+            }
+            return CreatedAtRoute("GetUserById", new { id = result.Id }, result);
+        }
+
+        [HttpPost("Login", Name = "LoginUser")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginDto userLoginDto)
+        {
+            if (userLoginDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userRepository.Login(userLoginDto);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(user);
         }
     }
 }
