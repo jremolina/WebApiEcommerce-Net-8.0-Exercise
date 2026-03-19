@@ -1,9 +1,12 @@
+using System.Text;
 using ApiEcommerce.Constants;
 using ApiEcommerce.Data;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,31 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+});
+
+
+// implementacion de Autenticacion/autorizacion, permite que solo los usuarios autenticados accedan a los endpoints
+var secretKey = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("Secret key no esta configurada");
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; //desactivar uso de https, en produccion debe estar en true
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = false,
+        ValidateAudience = true
+    };
 });
 
 // Add services to the container.
@@ -52,6 +80,7 @@ app.UseHttpsRedirection();
 //app.UseCors("AllowSpecificOrigin");
 app.UseCors(PolicyNames.AllowSpecificOrigin);
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

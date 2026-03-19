@@ -3,6 +3,7 @@ using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository.IRepository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace ApiEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admnin")]// exige autorizacion
     //[EnableCors(PolicyNames.AllowSpecificOrigin)]
     
     public class CategoriesController : ControllerBase
@@ -27,7 +29,7 @@ namespace ApiEcommerce.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        
+        [AllowAnonymous]       
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories();
@@ -46,6 +48,7 @@ namespace ApiEcommerce.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
         public IActionResult GetCategory(int id)
         {
             var category = _categoryRepository.GetCategory(id);
