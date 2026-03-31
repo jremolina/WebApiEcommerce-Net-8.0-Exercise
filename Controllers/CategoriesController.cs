@@ -11,7 +11,7 @@ namespace ApiEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admnin")]// exige autorizacion
+    [Authorize(Roles = "Admin")]// exige autorizacion
     //[EnableCors(PolicyNames.AllowSpecificOrigin)]
     
     public class CategoriesController : ControllerBase

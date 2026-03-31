@@ -10,7 +10,7 @@ namespace ApiEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   [Authorize(Roles = "Admnin")]// exige autorizacion
+   [Authorize(Roles = "Admin")]// exige autorizacion
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
