@@ -10,7 +10,7 @@ namespace ApiEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   [Authorize(Roles = "Admin")]// exige autorizacion
+    [Authorize(Roles = "Admin")]// exige autorizacion
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
@@ -194,7 +194,7 @@ namespace ApiEcommerce.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
+
             var product = _productRepository.GetProduct(id);
             if (product == null)
             {

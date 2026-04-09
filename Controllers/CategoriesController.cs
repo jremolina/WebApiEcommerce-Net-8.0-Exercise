@@ -12,8 +12,8 @@ namespace ApiEcommerce.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]// exige autorizacion
-    //[EnableCors(PolicyNames.AllowSpecificOrigin)]
-    
+                                //[EnableCors(PolicyNames.AllowSpecificOrigin)]
+
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -29,7 +29,7 @@ namespace ApiEcommerce.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [AllowAnonymous]       
+        [AllowAnonymous]
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories();
@@ -44,6 +44,9 @@ namespace ApiEcommerce.Controllers
 
 
         [HttpGet("{id:int}", Name = "GetCategory")]
+        // [ResponseCache(Duration = 10)]
+        //[ResponseCache(CacheProfileName = "Default10")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default10)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,7 +134,7 @@ namespace ApiEcommerce.Controllers
                 return NotFound($"La Categoria con el id {id} no existe");
             }
             var category = _categoryRepository.GetCategory(id);
-            if(category==null)
+            if (category == null)
             {
                 return NotFound($"La Categoria con el id {id} no existe");
             }

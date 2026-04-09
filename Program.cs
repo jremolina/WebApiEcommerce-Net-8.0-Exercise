@@ -4,6 +4,7 @@ using ApiEcommerce.Data;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,16 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ConexionSql");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+
+// añadiendo cache.
+builder.Services.AddResponseCaching(options =>
+{
+    options.MaximumBodySize = 1024 * 1024;
+    options.UseCaseSensitivePaths = true;
+});
+
+
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -52,7 +63,20 @@ builder.Services.AddAuthentication(options =>
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(option =>// creacion de perfiles de cache para usar en controladores, ver ejemplo categorias
+{
+    // option.CacheProfiles.Add("Default10", new CacheProfile() { Duration = 10 });
+    // option.CacheProfiles.Add("Default20", new CacheProfile() { Duration = 20 });
+    
+    option.CacheProfiles.Add(CacheProfiles.Default10,CacheProfiles.Profile10);// usando las constantes definidas
+    option.CacheProfiles.Add(CacheProfiles.Default20,CacheProfiles.Profile20);
+
+});
+
+
+
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
@@ -112,6 +136,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 //app.UseCors("AllowSpecificOrigin");
 app.UseCors(PolicyNames.AllowSpecificOrigin);
+
+// añadiendo cache, importante, debe ir debajo de app.usecors
+app.UseResponseCaching();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
