@@ -3,6 +3,7 @@ using ApiEcommerce.Constants;
 using ApiEcommerce.Data;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Options;
@@ -67,9 +68,9 @@ builder.Services.AddControllers(option =>// creacion de perfiles de cache para u
 {
     // option.CacheProfiles.Add("Default10", new CacheProfile() { Duration = 10 });
     // option.CacheProfiles.Add("Default20", new CacheProfile() { Duration = 20 });
-    
-    option.CacheProfiles.Add(CacheProfiles.Default10,CacheProfiles.Profile10);// usando las constantes definidas
-    option.CacheProfiles.Add(CacheProfiles.Default20,CacheProfiles.Profile20);
+
+    option.CacheProfiles.Add(CacheProfiles.Default10, CacheProfiles.Profile10);// usando las constantes definidas
+    option.CacheProfiles.Add(CacheProfiles.Default20, CacheProfiles.Profile20);
 
 });
 
@@ -110,8 +111,63 @@ builder.Services.AddSwaggerGen(
         new List<string>()
       }
     });
+
+
+      // doucmentacion de api
+      options.SwaggerDoc("v2", new OpenApiInfo
+      {
+          Version = "v2",
+          Title = "Api Ecommerce V2",
+          Description = "Api para gestion de productos y usuarios",
+          TermsOfService = new Uri("https://www.example.com/terms"),
+          Contact = new OpenApiContact
+          {
+              Name = "Devtalles",
+              Url = new Uri("https://www.google.com")
+          },
+          License = new OpenApiLicense
+          {
+              Name = "Licencia de Uso",
+              Url = new Uri("https://www.example.com/license")
+          }
+      });
+      options.SwaggerDoc("v1", new OpenApiInfo
+      {
+          Version = "v1",
+          Title = "Api Ecommerce",
+          Description = "Api para gestion de productos y usuarios",
+          TermsOfService = new Uri("https://www.example.com/terms"),
+          Contact = new OpenApiContact
+          {
+              Name = "Devtalles",
+              Url = new Uri("https://www.google.com")
+          },
+          License = new OpenApiLicense
+          {
+              Name = "Licencia de Uso",
+              Url = new Uri("https://www.example.com/license")
+          }
+      });
   }
 );
+
+
+//versionnamiento de endpoints - ver controladores
+var apiVersioningBuilder = builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+    //options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version"));
+});
+
+apiVersioningBuilder.AddApiExplorer(option =>
+{
+    option.GroupNameFormat = "'v'VVV";
+    option.SubstituteApiVersionInUrl = true; //api/v(version)/products
+});
+
+
 
 builder.Services.AddCors(options =>
 {
@@ -130,7 +186,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            options.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
+        }
+    );
 }
 
 app.UseHttpsRedirection();

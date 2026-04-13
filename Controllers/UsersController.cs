@@ -3,6 +3,7 @@ using ApiEcommerce.Models;
 using ApiEcommerce.Models.Dtos;
 using ApiEcommerce.Repository;
 using ApiEcommerce.Repository.IRepository;
+using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,9 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ApiEcommerce.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-   [Authorize(Roles = "Admin")]// exige autorizacion
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [Authorize(Roles = "Admin")]// exige autorizacion
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -81,7 +84,7 @@ namespace ApiEcommerce.Controllers
         }
 
         [HttpPost("Login", Name = "LoginUser")]
-         [AllowAnonymous]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
