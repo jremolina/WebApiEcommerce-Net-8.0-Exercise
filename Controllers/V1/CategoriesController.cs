@@ -33,6 +33,7 @@ namespace ApiEcommerce.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
+        [Obsolete("Este metodo esta obsoleto, use V2 Get")]
         // [MapToApiVersion("1.0")]
         public IActionResult GetCategories()
         {
